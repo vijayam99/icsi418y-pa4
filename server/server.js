@@ -356,10 +356,11 @@ app.delete("/projects/:projectId/members/:userId", async (req, res) => {
     });
 
     if (assignedStory) {
-      return res.status(400).json({
-        message: "Cannot remove member with assigned user stories"
-      });
-    }
+  return res.status(409).json({
+    message:
+      "Reassign, unassign, or delete this member's stories before removing them from the project."
+  });
+}
 
     const membership = await ProjectMembership.findOneAndDelete({
       project_id: projectId,
@@ -432,6 +433,13 @@ app.post("/projects/:projectId/stories", async (req, res) => {
       if (!mongoose.isValidObjectId(assigned_user_id)) {
         return res.status(400).json({
           message: "Invalid assigned user ID"
+        });
+      }
+      const assignedUser = await User.findById(assigned_user_id);
+
+      if (!assignedUser) {
+        return res.status(404).json({
+          message: "Assigned user does not exist"
         });
       }
 
@@ -601,21 +609,29 @@ app.put("/projects/:projectId/stories/:storyId", async (req, res) => {
       story.status = status;
     }
 
-    if (assigned_user_id !== undefined) {
-      if (assigned_user_id === null || assigned_user_id === "") {
-        story.assigned_user_id = null;
-      } else {
-        if (!mongoose.isValidObjectId(assigned_user_id)) {
-          return res.status(400).json({
-            message: "Invalid assigned user ID"
-          });
-        }
+   if (assigned_user_id !== undefined) {
+  if (assigned_user_id === null || assigned_user_id === "") {
+    story.assigned_user_id = null;
+  } else {
+    if (!mongoose.isValidObjectId(assigned_user_id)) {
+      return res.status(400).json({
+        message: "Invalid assigned user ID"
+      });
+    }
 
-        const membership = await ProjectMembership.findOne({
-          project_id: projectId,
-          user_id: assigned_user_id
-        });
+    // NEW: Check if the assigned user exists
+    const assignedUser = await User.findById(assigned_user_id);
 
+    if (!assignedUser) {
+      return res.status(404).json({
+        message: "Assigned user does not exist"
+      });
+    }
+
+    const membership = await ProjectMembership.findOne({
+      project_id: projectId,
+      user_id: assigned_user_id
+    });
         const isLead =
           String(project.project_lead_id) === String(assigned_user_id);
 

@@ -11,7 +11,7 @@ const emptyForm = {
   assigned_user_id: "",
 };
 
-function ProjectBacklog({ selectedProject }) {
+function ProjectBacklog({ selectedProject, membersRefreshKey }) {
   const projectId = selectedProject?._id;
 
   const [stories, setStories] = useState([]);
@@ -24,16 +24,23 @@ function ProjectBacklog({ selectedProject }) {
   const [deleting, setDeleting] = useState(false);
 
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [refreshKey, setRefreshKey] = useState(0);
   const [storyToDelete, setStoryToDelete] = useState(null);
 
+  const previousProjectIdRef = useRef(projectId);
   const cancelButtonRef = useRef(null);
   const previousFocusRef = useRef(null);
   const modalRef = useRef(null);
 
-  // Load stories and project members.
+  // Load stories and project members
   useEffect(() => {
     if (!projectId) return;
+
+    if (previousProjectIdRef.current !== projectId) {
+      setSuccess("");
+      previousProjectIdRef.current = projectId;
+    }
 
     const controller = new AbortController();
     let active = true;
@@ -118,10 +125,9 @@ function ProjectBacklog({ selectedProject }) {
       active = false;
       controller.abort();
     };
-  }, [projectId, refreshKey, selectedProject]);
+  }, [projectId, refreshKey, selectedProject, membersRefreshKey]);
 
-  // Focus the Cancel button when the modal opens.
-  // Escape closes it, and Tab stays inside the modal.
+  // Handle keyboard focus for delete popup
   useEffect(() => {
     if (!storyToDelete) return;
 
@@ -185,7 +191,7 @@ function ProjectBacklog({ selectedProject }) {
     setRefreshKey((previous) => previous + 1);
   }
 
-  // Create or update a user story.
+  // Create or update a user story
   async function handleSubmit(event) {
     event.preventDefault();
 
@@ -193,11 +199,13 @@ function ProjectBacklog({ selectedProject }) {
 
     if (!form.title.trim() || !form.description.trim()) {
       setError("Title and description are required.");
+      setSuccess("");
       return;
     }
 
     setSaving(true);
     setError("");
+    setSuccess("");
 
     const isEditing = Boolean(editingId);
 
@@ -232,6 +240,13 @@ function ProjectBacklog({ selectedProject }) {
       }
 
       resetForm();
+
+      setSuccess(
+        isEditing
+          ? "User story updated successfully."
+          : "User story created successfully."
+      );
+
       refreshBacklog();
     } catch (err) {
       setError(err.message);
@@ -240,7 +255,7 @@ function ProjectBacklog({ selectedProject }) {
     }
   }
 
-  // Fill the form with the selected story.
+  // Fill the form with existing story values
   function handleEdit(story) {
     setEditingId(story._id);
 
@@ -256,6 +271,7 @@ function ProjectBacklog({ selectedProject }) {
     });
 
     setError("");
+    setSuccess("");
 
     document
       .getElementById("backlog-story-form")
@@ -265,13 +281,14 @@ function ProjectBacklog({ selectedProject }) {
       });
   }
 
-  // Open custom confirmation popup.
+  // Open custom delete confirmation
   function openDeleteModal(story) {
     setError("");
+    setSuccess("");
     setStoryToDelete(story);
   }
 
-  // Delete only after confirmation.
+  // Delete story after confirmation
   async function handleDelete() {
     if (!storyToDelete || deleting) return;
 
@@ -279,6 +296,7 @@ function ProjectBacklog({ selectedProject }) {
 
     setDeleting(true);
     setError("");
+    setSuccess("");
 
     try {
       const response = await fetch(
@@ -299,6 +317,7 @@ function ProjectBacklog({ selectedProject }) {
       }
 
       setStoryToDelete(null);
+      setSuccess("User story deleted successfully.");
       refreshBacklog();
     } catch (err) {
       setError(err.message);
@@ -363,6 +382,13 @@ function ProjectBacklog({ selectedProject }) {
       {error && (
         <p className="message error" role="alert">
           {error}
+        </p>
+      )}
+
+      {/* Success Message */}
+      {success && (
+        <p className="message success" role="status">
+          {success}
         </p>
       )}
 

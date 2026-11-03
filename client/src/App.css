@@ -144,6 +144,10 @@ button:disabled {
   transform: none;
 }
 
+button:disabled:hover {
+  transform: none;
+}
+
 /* MESSAGES */
 
 .message {
@@ -155,6 +159,7 @@ button:disabled {
   font-size: 14px;
   font-weight: 600;
   line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 .message.success {
@@ -226,6 +231,7 @@ button:disabled {
 .dashboard-header p {
   color: #6b7280;
   margin-top: 8px;
+  line-height: 1.6;
 }
 
 .logout-button {
@@ -234,6 +240,7 @@ button:disabled {
   background: #ffffff;
   color: #374151;
   border: 1px solid #d1d5db;
+  flex-shrink: 0;
 }
 
 .logout-button:hover {
@@ -271,6 +278,7 @@ button:disabled {
   font-size: 14px;
   margin: 8px 0 24px;
   line-height: 1.6;
+  overflow-wrap: anywhere;
 }
 
 .section-card textarea,
@@ -348,6 +356,7 @@ button:disabled {
 .project-lead {
   font-size: 14px;
   margin-bottom: 16px;
+  overflow-wrap: anywhere;
 }
 
 .manage-button {
@@ -411,6 +420,7 @@ button:disabled {
   flex-direction: column;
   gap: 5px;
   min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .member-info span {
@@ -434,6 +444,7 @@ button:disabled {
   background: #fee2e2;
   color: #b91c1c;
   font-size: 13px;
+  flex-shrink: 0;
 }
 
 .remove-button:hover {
@@ -476,6 +487,7 @@ button:disabled {
   margin: 0;
   color: #64748b;
   font-size: 14px;
+  overflow-wrap: anywhere;
 }
 
 .backlog-count {
@@ -490,6 +502,7 @@ button:disabled {
   font-size: 13px;
   font-weight: 700;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 /* CREATE / EDIT STORY FORM */
@@ -716,6 +729,7 @@ button:disabled {
   color: #64748b;
   font-size: 13px;
   line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 
 /* STORY BUTTONS */
@@ -889,6 +903,14 @@ button:disabled {
     font-size: 26px;
   }
 
+  .dashboard-header p {
+    line-height: 1.5;
+  }
+
+  .logout-button {
+    width: 100%;
+  }
+
   .section-card {
     padding: 20px;
   }
@@ -906,6 +928,10 @@ button:disabled {
   }
 
   .project-backlog .backlog-actions button {
+    flex: 1;
+  }
+
+  .project-backlog .story-actions button {
     flex: 1;
   }
 }
@@ -957,6 +983,8 @@ textarea:focus-visible {
 .delete-modal {
   width: 100%;
   max-width: 430px;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
   padding: 30px;
   background: #ffffff;
   border: 1px solid #e5e7eb;
@@ -990,6 +1018,7 @@ textarea:focus-visible {
   color: #64748b;
   font-size: 14px;
   line-height: 1.7;
+  overflow-wrap: anywhere;
 }
 
 .delete-modal p strong {
