@@ -5,6 +5,7 @@ import "./App.css";
 import CreateProject from "./components/CreateProject";
 import ProjectList from "./components/ProjectList";
 import ProjectMembers from "./components/ProjectMembers";
+import ProjectBacklog from "./components/ProjectBacklog";
 
 const API_URL = "http://localhost:5000";
 
@@ -27,6 +28,8 @@ function App() {
   const [selectedProject, setSelectedProject] = useState(null);
   const [dashboardError, setDashboardError] = useState("");
 
+  // HANDLE FORM INPUT
+
   function handleChange(event) {
     const { name, value } = event.target;
 
@@ -35,6 +38,8 @@ function App() {
       [name]: value
     });
   }
+
+  // LOGIN AND SIGNUP
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -74,6 +79,8 @@ function App() {
     }
   }
 
+  // SWITCH BETWEEN LOGIN AND SIGNUP
+
   function switchForm() {
     setIsLogin(!isLogin);
     setMessage("");
@@ -87,6 +94,8 @@ function App() {
     });
   }
 
+  // LOAD USERS
+
   async function loadUsers() {
     const response = await fetch(`${API_URL}/users`);
 
@@ -97,6 +106,8 @@ function App() {
     const data = await response.json();
     setUsers(data);
   }
+
+  // LOAD PROJECTS
 
   async function loadProjects() {
     const response = await fetch(`${API_URL}/projects`);
@@ -111,9 +122,14 @@ function App() {
     setSelectedProject((current) => {
       if (!current) return null;
 
-      return data.find((project) => project._id === current._id) || null;
+      return (
+        data.find((project) => project._id === current._id) ||
+        null
+      );
     });
   }
+
+  // LOAD DASHBOARD DATA
 
   useEffect(() => {
     if (page !== "dashboard") return;
@@ -121,7 +137,11 @@ function App() {
     async function loadDashboard() {
       try {
         setDashboardError("");
-        await Promise.all([loadUsers(), loadProjects()]);
+
+        await Promise.all([
+          loadUsers(),
+          loadProjects()
+        ]);
       } catch (error) {
         setDashboardError(error.message);
       }
@@ -129,6 +149,8 @@ function App() {
 
     loadDashboard();
   }, [page]);
+
+  // REFRESH PROJECTS AFTER CREATING ONE
 
   async function handleProjectCreated() {
     try {
@@ -139,6 +161,8 @@ function App() {
     }
   }
 
+  // LOGOUT
+
   function handleLogout() {
     setPage("auth");
     setIsLogin(true);
@@ -147,14 +171,20 @@ function App() {
     setMessageType("");
   }
 
+  // DASHBOARD
+
   if (page === "dashboard") {
     return (
       <div className="dashboard-page">
         <div className="dashboard-container">
+
           <header className="dashboard-header">
             <div>
               <h1>Project Management</h1>
-              <p>Manage your software projects and team members.</p>
+              <p>
+                Manage your software projects,
+                team members, and user stories.
+              </p>
             </div>
 
             <button
@@ -167,8 +197,12 @@ function App() {
           </header>
 
           {dashboardError && (
-            <p className="message error">{dashboardError}</p>
+            <p className="message error">
+              {dashboardError}
+            </p>
           )}
+
+          {/* CREATE AND VIEW PROJECTS */}
 
           <div className="dashboard-grid">
             <CreateProject
@@ -183,27 +217,47 @@ function App() {
             />
           </div>
 
+          {/* MANAGE PROJECT MEMBERS */}
+
           <ProjectMembers
             project={selectedProject}
             users={users}
           />
+
+          {/* PA4 - PROJECT BACKLOG */}
+
+          {selectedProject && (
+            <ProjectBacklog
+              selectedProject={selectedProject}
+            />
+          )}
+
         </div>
       </div>
     );
   }
 
+  // LOGIN AND SIGNUP PAGE
+
   return (
     <div className="page">
       <div className="card">
-        <h1>{isLogin ? "Welcome Back" : "Create Account"}</h1>
+
+        <h1>
+          {isLogin ? "Welcome Back" : "Create Account"}
+        </h1>
 
         <p className="subtitle">
-          {isLogin ? "Log in to continue" : "Sign up to get started"}
+          {isLogin
+            ? "Log in to continue"
+            : "Sign up to get started"}
         </p>
 
         <form onSubmit={handleSubmit}>
+
           {!isLogin && (
             <div className="name-row">
+
               <div className="input-group">
                 <label>First Name</label>
                 <input
@@ -227,6 +281,7 @@ function App() {
                   required
                 />
               </div>
+
             </div>
           )}
 
@@ -238,7 +293,9 @@ function App() {
               value={formData.username}
               onChange={handleChange}
               placeholder={
-                isLogin ? "Enter your username" : "Choose your username"
+                isLogin
+                  ? "Enter your username"
+                  : "Choose your username"
               }
               required
             />
@@ -252,7 +309,9 @@ function App() {
               value={formData.password}
               onChange={handleChange}
               placeholder={
-                isLogin ? "Enter your password" : "Choose your password"
+                isLogin
+                  ? "Enter your password"
+                  : "Choose your password"
               }
               required
             />
@@ -281,6 +340,7 @@ function App() {
               {message}
             </p>
           )}
+
         </form>
       </div>
     </div>
