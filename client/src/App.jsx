@@ -28,6 +28,9 @@ function App() {
   const [selectedProject, setSelectedProject] = useState(null);
   const [dashboardError, setDashboardError] = useState("");
 
+  // PA4: Refresh backlog members when project membership changes
+  const [membersRefreshKey, setMembersRefreshKey] = useState(0);
+
   // HANDLE FORM INPUT
 
   function handleChange(event) {
@@ -161,6 +164,12 @@ function App() {
     }
   }
 
+  // PA4: NOTIFY BACKLOG AFTER ADDING OR REMOVING A MEMBER
+
+  function handleMembersChanged() {
+    setMembersRefreshKey((previous) => previous + 1);
+  }
+
   // LOGOUT
 
   function handleLogout() {
@@ -222,6 +231,7 @@ function App() {
           <ProjectMembers
             project={selectedProject}
             users={users}
+            onMembersChanged={handleMembersChanged}
           />
 
           {/* PA4 - PROJECT BACKLOG */}
@@ -229,6 +239,7 @@ function App() {
           {selectedProject && (
             <ProjectBacklog
               selectedProject={selectedProject}
+              membersRefreshKey={membersRefreshKey}
             />
           )}
 

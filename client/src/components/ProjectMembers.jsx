@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 
 const API_URL = "http://localhost:5000";
 
-function ProjectMembers({ project, users }) {
+function ProjectMembers({ project, users, onMembersChanged }) {
   const [members, setMembers] = useState([]);
   const [selectedUserId, setSelectedUserId] = useState("");
   const [message, setMessage] = useState("");
@@ -96,8 +96,12 @@ function ProjectMembers({ project, users }) {
 
       if (response.ok) {
         const updatedMembers = await loadMembers(projectId);
+
         setMembers(updatedMembers);
         setSelectedUserId("");
+
+        // PA4: Update the backlog assignee dropdown
+        onMembersChanged?.();
       }
     } catch (error) {
       setMessage(error.message || "Could not connect to server");
@@ -131,7 +135,11 @@ function ProjectMembers({ project, users }) {
 
       if (response.ok) {
         const updatedMembers = await loadMembers(projectId);
+
         setMembers(updatedMembers);
+
+        // PA4: Update the backlog after member removal
+        onMembersChanged?.();
       }
     } catch (error) {
       setMessage(error.message || "Could not connect to server");
@@ -145,6 +153,7 @@ function ProjectMembers({ project, users }) {
     return (
       <div className="section-card">
         <h2>Project Members</h2>
+
         <p className="empty-message">
           Select a project to manage its members.
         </p>
@@ -162,7 +171,9 @@ function ProjectMembers({ project, users }) {
 
       <form onSubmit={handleAddMember}>
         <div className="input-group">
-          <label htmlFor="member-select">Select User</label>
+          <label htmlFor="member-select">
+            Select User
+          </label>
 
           <select
             id="member-select"
@@ -172,7 +183,9 @@ function ProjectMembers({ project, users }) {
             }
             required
           >
-            <option value="">Select a registered user</option>
+            <option value="">
+              Select a registered user
+            </option>
 
             {users.map((user) => (
               <option key={user._id} value={user._id}>
@@ -193,7 +206,9 @@ function ProjectMembers({ project, users }) {
         </p>
       )}
 
-      <h3 className="members-heading">Current Members</h3>
+      <h3 className="members-heading">
+        Current Members
+      </h3>
 
       {loading && <p>Updating members...</p>}
 
@@ -211,7 +226,10 @@ function ProjectMembers({ project, users }) {
             const isLead = user._id === leadId;
 
             return (
-              <div className="member-item" key={membership._id}>
+              <div
+                className="member-item"
+                key={membership._id}
+              >
                 <div className="member-info">
                   <strong>
                     {user.f_name} {user.l_name}
